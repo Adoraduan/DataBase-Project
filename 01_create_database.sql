@@ -7,8 +7,16 @@ SET ANSI_NULLS ON;
 SET QUOTED_IDENTIFIER ON;
 GO
 
+/* 若需从零重建（会删除 CampusCoffee 及其全部数据），把下面 5 行取消注释后执行：
+USE master;
+GO
+IF DB_ID(N'CampusCoffee') IS NOT NULL DROP DATABASE CampusCoffee;
+GO
+*/
+
+-- 中文排序规则，不区分大小写（保证中文按拼音/笔画比较结果可预期）
 IF DB_ID(N'CampusCoffee') IS NULL
-    CREATE DATABASE CampusCoffee;
+    CREATE DATABASE CampusCoffee COLLATE Chinese_PRC_CI_AS;
 GO
 
 USE CampusCoffee;

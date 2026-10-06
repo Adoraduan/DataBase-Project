@@ -1,7 +1,10 @@
 /* ============================================================
-   view.sql —— week4 统计视图
+   05_view.sql —— 统计视图
    校园咖啡店线上点单自取系统 · SQL Server
    ============================================================
+   前提：已执行 01_create_database.sql 与 02_insert_sample_data.sql。
+   本文件创建 7 个统计视图，并在末尾逐个查询验证（7 个都要出结果）。
+
    说明：CREATE OR ALTER VIEW 需 SQL Server 2016+；
         更早版本请改为「DROP VIEW IF EXISTS dbo.v_x;」后接 CREATE VIEW。
    ============================================================ */
@@ -73,8 +76,34 @@ WHERE o.status <> N'已取消'
 GROUP BY CONVERT(DATE, o.created_at);
 GO
 
--- 查询视图示例（验证视图可用）
+/* ============================================================
+   逐个查询验证：7 个视图都应有结果（截图留证）
+   ============================================================ */
+
+-- 1. 订单明细（每笔订单展开成明细行）
+SELECT * FROM dbo.v_order_detail;
+GO
+
+-- 2. 商品销量/销售额
 SELECT * FROM dbo.v_sales_by_product;
+GO
+
+-- 3. 门店订单数与销售额
 SELECT * FROM dbo.v_sales_by_store;
+GO
+
+-- 4. 用户积分汇总（余额 / 累计获得 / 流水笔数）
+SELECT * FROM dbo.v_user_points;
+GO
+
+-- 5. 库存状态（缺货 / 低库存 / 充足）
 SELECT * FROM dbo.v_inventory_status;
+GO
+
+-- 6. 每顾客消费统计
+SELECT * FROM dbo.v_customer_spend;
+GO
+
+-- 7. 按日销售统计
+SELECT * FROM dbo.v_daily_sales;
 GO

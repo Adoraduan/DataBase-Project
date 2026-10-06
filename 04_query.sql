@@ -1,13 +1,23 @@
 /* ============================================================
-   query.sql —— week4 多表查询（连接查询）
+   04_query.sql —— 多表查询与统计查询
    校园咖啡店线上点单自取系统 · SQL Server
    ============================================================
-   说明：以下查询基于 ddl.sql + dml.sql 建立的数据。
-        每段前注释说明该查询回答的业务问题。
+   前提：已执行 01_create_database.sql 与 02_insert_sample_data.sql
+        （执行过 03_crud.sql 也可，数据仍完整）。
+
+   结构：
+     Part A  连接查询：多表 INNER JOIN / LEFT JOIN / 自连接
+     Part B  统计查询：聚合函数 + GROUP BY + HAVING + 子查询
+
+   每段前的注释说明该查询回答的业务问题。
    ============================================================ */
 
 USE CampusCoffee;
 GO
+
+/* ============================================================
+   Part A  连接查询
+   ============================================================ */
 
 -- 1. 订单总览：订单号 + 顾客 + 门店 + 状态 + 金额
 SELECT o.order_no, u.username, s.store_name, o.status, o.total_amount, o.created_at
@@ -85,4 +95,73 @@ JOIN dbo.user_roles       ur ON u.user_id  = ur.user_id
 JOIN dbo.roles            r  ON ur.role_id = r.role_id
 JOIN dbo.role_permissions rp ON r.role_id  = rp.role_id
 JOIN dbo.permissions      p  ON rp.permission_id = p.permission_id;
+GO
+
+/* ============================================================
+   Part B  统计查询（聚合 / GROUP BY / HAVING / 子查询）
+   ============================================================ */
+
+-- 11. 各商品销量与销售额（聚合 + GROUP BY，排除已取消订单）
+SELECT oi.product_name AS [商品],
+       SUM(oi.quantity) AS [销量],
+       SUM(oi.subtotal) AS [销售额]
+FROM dbo.order_items oi
+JOIN dbo.orders o ON oi.order_id = o.order_id
+WHERE o.status <> N'已取消'
+GROUP BY oi.product_name
+ORDER BY [销售额] DESC;
+GO
+
+-- 12. 各门店经营概况（只统计已成交的订单状态）
+SELECT s.store_name AS [门店],
+       COUNT(DISTINCT o.order_id) AS [订单数],
+       SUM(o.total_amount) AS [销售额]
+FROM dbo.orders o
+JOIN dbo.stores s ON o.store_id = s.store_id
+WHERE o.status IN (N'已支付', N'制作中', N'待取餐', N'已完成')
+GROUP BY s.store_name;
+GO
+
+-- 13. 消费 2 单及以上的顾客（HAVING：对分组结果筛选，而非对单行筛选）
+SELECT u.username AS [顾客],
+       COUNT(o.order_id) AS [订单数],
+       SUM(o.total_amount) AS [累计消费]
+FROM dbo.users u
+JOIN dbo.orders o ON u.user_id = o.user_id
+WHERE o.status <> N'已取消'
+GROUP BY u.username
+HAVING COUNT(o.order_id) >= 2;
+GO
+
+-- 14. 从未下过单的注册用户（NOT EXISTS 相关子查询）
+SELECT u.user_id, u.username, u.created_at
+FROM dbo.users u
+WHERE NOT EXISTS (
+    SELECT 1 FROM dbo.orders o WHERE o.user_id = u.user_id
+);
+GO
+
+-- 15. 客单价高于全站平均客单价的订单（标量子查询）
+SELECT o.order_no, u.username, o.total_amount
+FROM dbo.orders o
+JOIN dbo.users u ON o.user_id = u.user_id
+WHERE o.status <> N'已取消'
+  AND o.total_amount > (
+      SELECT AVG(total_amount) FROM dbo.orders WHERE status <> N'已取消'
+  )
+ORDER BY o.total_amount DESC;
+GO
+
+-- 16. 每个门店库存最少的那个 SKU（相关子查询，逐门店比较）
+SELECT s.store_name AS [门店], p.product_name AS [商品], k.sku_name AS [规格], i.quantity AS [库存]
+FROM dbo.inventory i
+JOIN dbo.skus     k ON i.sku_id    = k.sku_id
+JOIN dbo.products p ON k.product_id = p.product_id
+JOIN dbo.stores   s ON i.store_id  = s.store_id
+WHERE i.quantity = (
+    SELECT MIN(i2.quantity)
+    FROM dbo.inventory i2
+    WHERE i2.store_id = i.store_id
+)
+ORDER BY s.store_name;
 GO

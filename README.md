@@ -8,24 +8,25 @@
 
 ## 环境
 
-- 数据库：Microsoft SQL Server（示例库名 `CampusCoffee`）
+- 数据库：Microsoft SQL Server（示例库名 `CampusCoffee`，排序规则 `Chinese_PRC_CI_AS`）
 - 脚本为 T-SQL；`CREATE OR ALTER VIEW` 需 SQL Server 2016+
-- 建议以 `sa` / `db_owner` 权限执行（`role.sql` 的 `CREATE LOGIN` 需 sysadmin）
+- 建议以 `sa` / `db_owner` 权限执行（`07_role.sql` 的 `CREATE LOGIN` 需 sysadmin）
 
 ## 目录结构
 
 | 文件 | 说明 |
 | --- | --- |
-| `ddl.sql` | 建库建表 + 主外键/唯一/检查约束 |
-| `dml.sql` | 装载样例数据 + 增删改验证 |
-| `query.sql` | 多表连接查询 |
-| `view.sql` | 统计视图 |
-| `constraint.sql` | 补充完整性约束 + 非法数据验证 |
-| `role.sql` | 数据库角色 + 授权 + 越权验证 |
+| `01_create_database.sql` | 建库 + 建 20 张表 + 主外键/唯一/检查约束 |
+| `02_insert_sample_data.sql` | 清空并装载样例数据（唯一数据源，幂等可重复执行） |
+| `03_crud.sql` | 增删改（CRUD）演示，每个操作后附 SELECT 核对 |
+| `04_query.sql` | 多表连接查询 + 统计查询（聚合 / GROUP BY / HAVING / 子查询） |
+| `05_view.sql` | 7 个统计视图，并逐个查询验证 |
+| `06_constraint.sql` | 补充完整性约束 + 合法数据成功、非法数据被拒绝的验证用例 |
+| `07_role.sql` | 数据库角色 + 最小权限授权 + 正常操作与越权失败的验证 |
 | `week1：项目设计.md` | 业务流程 / 角色 / 数据边界 |
-| `week2：关系模式设计.md` | 关系模式（字段/域/码，详细） |
+| `week2：关系模式设计.md` | 关系模式（字段 / 域 / 码 / 样例元组，详细） |
 | `关系表说明.md` | 表功能与关系速览（易读版） |
-| `阶段报告.md` | 阶段报告（设计思路/实验过程/总结） |
+| `阶段报告.md` | 阶段报告（设计思路 / 实验过程 / 总结） |
 | `AI使用记录.md` | AI 使用记录 |
 | `组内分工表.md` | 组内分工表 |
 
@@ -37,10 +38,34 @@
 
 ## 复现步骤
 
-1. 新建查询窗口，按顺序执行：
-   `ddl.sql` → `dml.sql` → `query.sql` → `view.sql` → `constraint.sql` → `role.sql`
-2. 各脚本均以 `USE CampusCoffee;` 开头。`dml.sql` 顶部会先清空数据，可重复执行；`constraint.sql`、`role.sql` 首次执行（重复执行见脚本内注释）。
-3. 验证要点：
-   - `constraint.sql` 末尾非法语句应被拒绝；
-   - `role.sql` 末尾越权语句应报错（消息 229，属预期）；
-   - `query.sql` / `view.sql` 返回正确结果。
+**第一段（第 3 周：建库 + 样例数据 + 增删改）**
+
+1. `01_create_database.sql` —— 建库建表
+2. `02_insert_sample_data.sql` —— 装载样例数据
+3. `03_crud.sql` —— 增删改演示
+
+**第二段（第 4 周：查询 + 视图 + 约束 + 权限）**
+
+`03_crud.sql` 结束时会把改动还原，因此第二段的起点就是基线；这里仍重跑一次数据源，确保起点干净：
+
+4. 重新执行 `02_insert_sample_data.sql`
+5. `04_query.sql`
+6. `05_view.sql`
+7. `06_constraint.sql`
+8. `07_role.sql`
+
+> - `02_insert_sample_data.sql` 顶部会先清空全部表，可反复执行，是唯一的数据来源；
+> - `03_crud.sql` 开头会把改动还原到基线，因此可反复执行，且跑完不会让后续查询查空；
+> - `07_role.sql` 用「存在性判断 + 动态 SQL」保护，可反复执行；
+> - `06_constraint.sql` 重复执行前，需取消文末「重置」段 `DROP CONSTRAINT` 的注释并执行一次。
+
+## 验证要点
+
+| 脚本 | 应该看到什么 |
+| --- | --- |
+| `02_insert_sample_data.sql` | 末尾「行数核对」符合注释预期；两组自洽性核对（订单总额 = 明细合计、积分余额 = 流水末笔）都返回 **0 行** |
+| `03_crud.sql` | 每个增删改后面紧跟的 SELECT 与注释中的「预期结果」一致；末尾自洽性复核仍为 0 行 |
+| `04_query.sql` | 16 段查询都有结果 |
+| `05_view.sql` | 7 个视图逐个查询都有结果 |
+| `06_constraint.sql` | 第 2 部分正例插入成功；**第 3 部分 7 条非法语句逐条报错**；末尾行数核对与装载后一致 |
+| `07_role.sql` | 第 8 部分正常操作成功；**第 9 部分 4 条越权语句报错（消息 229）** |
