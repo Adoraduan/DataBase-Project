@@ -124,7 +124,7 @@ GO
    ============================================================ */
 CREATE TABLE dbo.employees (
     employee_id INT IDENTITY(1,1) NOT NULL,
-    user_id     INT               NULL,
+    user_id     INT               NOT NULL,
     store_id    INT               NOT NULL,
     name        NVARCHAR(50)      NOT NULL,
     position    NVARCHAR(20)      NOT NULL,

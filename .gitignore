@@ -1,2 +1,4 @@
 # Visual Studio 工作区缓存
 .vs/
+.gitignore
+关系表说明.pdf

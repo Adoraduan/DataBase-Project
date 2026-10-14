@@ -61,8 +61,10 @@
 | created_at | DATETIME | 非空 | 注册时间 |
 
 - **主码**：`user_id`
-- **候选码**：`username`、`phone`、`email`
+- **候选码**：`username`、`phone`
 - **外码**：无
+- **范式等级**：4NF
+- **问题**：email字段由于其可空属性在先前设计中被错误归类为候选码，应删除其候选码地位，但删除后发现依然不违背4NF规则。
 
 ```
 样例元组：
@@ -80,6 +82,7 @@
 | description | NVARCHAR(200) | 可空 | 角色说明 |
 
 - **主码**：`role_id`　**候选码**：`role_name`　**外码**：无
+- **范式等级**：4NF
 
 ```
 样例元组：(1,'顾客','注册用户，下单取餐评价'),(2,'店员','接单制作核销'),(3,'店长','管理商品库存优惠审批退款'),(4,'系统管理员','管账号角色权限与配置')
@@ -95,6 +98,7 @@
 | description | NVARCHAR(200) | 可空 | 说明 |
 
 - **主码**：`permission_id`　**候选码**：`permission_name`　**外码**：无
+- **范式等级**：4NF
 
 ```
 样例元组：
@@ -108,6 +112,7 @@
 | permission_id | INT | 主码(组合)，外码→permissions | 权限 |
 
 - **主码**：`(role_id, permission_id)`　**候选码**：无　**外码**：`role_id→roles`、`permission_id→permissions`
+- **范式等级**：4NF
 
 ```
 样例元组：
@@ -122,6 +127,7 @@
 | role_id | INT | 主码(组合)，外码→roles | 角色 |
 
 - **主码**：`(user_id, role_id)`　**候选码**：无　**外码**：`user_id→users`、`role_id→roles`
+- **范式等级**：4NF
 
 ```
 样例元组：
@@ -139,6 +145,7 @@
 | status | NVARCHAR(20) | 非空，默认'营业' | 营业 / 停业 |
 
 - **主码**：`store_id`　**候选码**：`store_name`　**外码**：无
+- **范式等级**：4NF
 
 ```
 样例元组：
@@ -152,19 +159,21 @@
 | 字段 | 域 | 键/约束 | 说明 |
 | --- | --- | --- | --- |
 | employee_id | INT | 主码 | 自增 |
-| user_id | INT | 候选码，唯一可空，外码→users | 关联登录账号 |
+| user_id | INT | 候选码，唯一非空，外码→users | 关联登录账号 |
 | store_id | INT | 非空，外码→stores | 所属门店 |
 | name | NVARCHAR(50) | 非空 | 姓名 |
 | position | NVARCHAR(20) | 非空 | 店员 / 店长 |
 | hire_date | DATE | 可空 | 入职日期 |
 
 - **主码**：`employee_id`　**候选码**：`user_id`（已关联账号时）　**外码**：`user_id→users`、`store_id→stores`
+- **范式等级**：4NF
+- **问题**：先前设计中将员工的user_id设定为可空的设定使user_id不应该成为候选码同时不方便成为外码，已更改为非空字段。
 
 ```
 样例元组：
-(1, 3,    1, '张伟','店长','2025-09-01')
-(2, 2,    1, '李娜','店员','2026-03-01')
-(3, NULL, 2, '王强','店员','2026-06-01')
+(1, 3, 1, '张伟','店长','2025-09-01')
+(2, 2, 1, '李娜','店员','2026-03-01')
+(3, 1, 2, '王强','店员','2026-06-01')
 ```
 
 ### 8. `categories` 商品分类
@@ -176,6 +185,7 @@
 | sort_order | INT | 非空，默认 0 | 排序 |
 
 - **主码**：`category_id`　**候选码**：`category_name`　**外码**：`parent_id→categories`
+- **范式等级**：4NF
 
 ```
 样例元组：(1,NULL,'咖啡',1),(2,NULL,'甜点',2),(3,1,'拿铁系列',1)
@@ -192,7 +202,8 @@
 | status | NVARCHAR(20) | 非空，默认'上架' | 上架 / 下架 |
 | created_at | DATETIME | 非空 | 创建时间 |
 
-- **主码**：`product_id`　**候选码**：无　**外码**：`category_id→categories`
+- **主码**：`product_id`　**候选码**：`product_name`　**外码**：`category_id→categories`
+- **范式等级**：4NF
 
 ```
 样例元组：
@@ -212,7 +223,8 @@
 | price | DECIMAL(10,2) | 非空 | 售价 |
 | status | NVARCHAR(20) | 非空，默认'上架' | 上架 / 下架 |
 
-- **主码**：`sku_id`　**候选码**：`(product_id, sku_name)`　**外码**：`product_id→products`
+- **主码**：`sku_id`　**候选码**：`(product_id,sku_name)`　**外码**：`product_id→products`
+- **范式等级**：4NF
 
 ```
 样例元组：
@@ -229,7 +241,8 @@
 | store_id | INT | 主码(组合)，外码→stores | 门店 |
 | quantity | INT | 非空，默认 0 | 库存数量 |
 
-- **主码**：`(sku_id, store_id)`　**候选码**：无　**外码**：`sku_id→skus`、`store_id→stores`
+- **主码**：`(sku_id, store_id)`　**候选码**：无　**外码**：`sku_id→skus`、`store_id→stores`；
+- **范式等级**：4NF
 
 ```
 样例元组：
@@ -254,6 +267,7 @@
 | completed_at | DATETIME | 可空 | 完成时间 |
 
 - **主码**：`order_id`　**候选码**：`order_no`　**外码**：`user_id→users`、`store_id→stores`
+- **范式等级**：4NF
 
 ```
 样例元组：
@@ -277,6 +291,7 @@
 | subtotal | DECIMAL(10,2) | 非空 | 小计 = unit_price × quantity |
 
 - **主码**：`order_item_id`　**候选码**：无　**外码**：`order_id→orders`、`sku_id→skus`
+- **范式等级**：4NF
 
 ```
 样例元组：
@@ -298,6 +313,7 @@
 | paid_at | DATETIME | 可空 | 支付时间 |
 
 - **主码**：`payment_id`　**候选码**：`payment_no`、`channel_trade_no`　**外码**：`order_id→orders`
+- **范式等级**：4NF
 
 ```
 样例元组：
@@ -319,6 +335,7 @@
 | status | NVARCHAR(20) | 非空，默认'启用' | 启用 / 停用 |
 
 - **主码**：`coupon_id`　**候选码**：无　**外码**：无
+- **范式等级**：4NF
 
 ```
 样例元组：
@@ -337,6 +354,7 @@
 | used_at | DATETIME | 可空 | 使用时间 |
 
 - **主码**：`claim_id`　**候选码**：`(coupon_id, user_id)`　**外码**：`coupon_id→coupons`、`user_id→users`
+- **范式等级**：4NF
 
 ```
 样例元组：
@@ -355,6 +373,7 @@
 | verified_at | DATETIME | 可空 | 核销时间 |
 
 - **主码**：`pickup_id`　**候选码**：`order_id`、`pickup_code`　**外码**：`order_id→orders`、`verify_employee_id→employees`
+- **范式等级**：4NF
 
 ```
 样例元组：
@@ -374,6 +393,7 @@
 | created_at | DATETIME | 非空 | 时间 |
 
 - **主码**：`review_id`　**候选码**：`order_id`　**外码**：`order_id→orders`、`user_id→users`
+- **范式等级**：4NF
 
 ```
 样例元组：
@@ -395,6 +415,7 @@
 | created_at | DATETIME | 非空 | 时间 |
 
 - **主码**：`transaction_id`　**候选码**：无　**外码**：`user_id→users`、`order_id→orders`
+- **范式等级**：4NF
 
 ```
 样例元组（alice 82 → 115 → 120，与 users.points_balance = 120 一致）：
@@ -415,6 +436,7 @@
 | created_at | DATETIME | 非空 | 时间 |
 
 - **主码**：`log_id`　**候选码**：无　**外码**：`operator_id→users`
+- **范式等级**：4NF
 
 ```
 样例元组：
