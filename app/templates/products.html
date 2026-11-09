@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}商品 · 校园咖啡店{% endblock %}
+{% block content %}
+<h1>商品</h1>
+
+{% if user.role == "manager" %}
+<section class="card">
+  <h2>新增商品</h2>
+  <form id="product-create-form" class="form-grid" novalidate>
+    <label>名称<input id="p-name" maxlength="100" required></label>
+    <label>分类<select id="p-category"></select></label>
+    <label>描述<input id="p-desc" maxlength="500"></label>
+    <label>状态
+      <select id="p-status">
+        <option value="上架">上架</option>
+        <option value="下架">下架</option>
+      </select>
+    </label>
+    <div class="actions"><button type="submit">新增</button></div>
+  </form>
+  <p id="product-error" class="error" hidden></p>
+</section>
+{% endif %}
+
+<table class="table">
+  <thead>
+    <tr><th>ID</th><th>商品</th><th>分类</th><th>状态</th><th>规格</th><th>操作</th></tr>
+  </thead>
+  <tbody id="product-rows"></tbody>
+</table>
+<p id="list-error" class="error" hidden></p>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/products.js') }}"></script>
+{% endblock %}

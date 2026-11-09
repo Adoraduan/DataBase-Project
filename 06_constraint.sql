@@ -118,7 +118,7 @@ VALUES (1, N'Z999', N'待取餐', NULL, NULL);
 GO
 
 -- 反例执行完后核对：数据未被改动（预期各表行数与 02 装载后一致）
-SELECT N'users' AS tbl, COUNT(*) AS cnt FROM dbo.users            -- 4
+SELECT N'users' AS tbl, COUNT(*) AS cnt FROM dbo.users            -- 5
 UNION ALL SELECT N'orders',        COUNT(*) FROM dbo.orders       -- 4
 UNION ALL SELECT N'order_items',   COUNT(*) FROM dbo.order_items  -- 5
 UNION ALL SELECT N'pickup_codes',  COUNT(*) FROM dbo.pickup_codes -- 3

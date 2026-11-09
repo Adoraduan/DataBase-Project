@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}订单 · 校园咖啡店{% endblock %}
+{% block content %}
+<h1>订单</h1>
+
+{% if user.role == "customer" %}
+<p><a class="button" href="{{ url_for('pages.order_new') }}">新建订单</a></p>
+{% endif %}
+
+<table class="table">
+  <thead>
+    <tr><th>订单号</th><th>门店</th><th>状态</th><th>金额</th><th>明细</th><th>创建时间</th><th>操作</th></tr>
+  </thead>
+  <tbody id="order-rows"></tbody>
+</table>
+<p id="orders-error" class="error" hidden></p>
+{% endblock %}
+{% block scripts %}
+<script>window.PAGE = {role: {{ user.role|tojson }}};</script>
+<script src="{{ url_for('static', filename='js/orders.js') }}"></script>
+{% endblock %}

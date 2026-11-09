@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}校园咖啡店{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="{{ url_for('pages.dashboard') }}">校园咖啡店 · 点单系统</a>
+    {% if current_user %}
+    <nav class="nav">
+      <a href="{{ url_for('pages.products') }}">商品</a>
+      {% if current_user.role in ("staff", "manager") %}
+      <a href="{{ url_for('pages.inventory') }}">库存</a>
+      {% endif %}
+      <a href="{{ url_for('pages.orders') }}">订单</a>
+      {% if current_user.role == "customer" %}
+      <a href="{{ url_for('pages.order_new') }}">下单</a>
+      {% endif %}
+      <span class="who">{{ current_user.username }}（{{ role_label(current_user.role) }}）</span>
+      <button id="logout-btn" class="link-btn" type="button">退出</button>
+    </nav>
+    {% endif %}
+  </header>
+
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
+
+  <script src="{{ url_for('static', filename='js/api.js') }}"></script>
+  <script>
+    const logoutBtn = document.getElementById("logout-btn");
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", async () => {
+        try { await api("POST", "/api/auth/logout"); } catch (err) { /* 会话已失效时直接走登录页 */ }
+        window.location.href = "/login";
+      });
+    }
+  </script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

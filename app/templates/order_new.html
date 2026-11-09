@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}新建订单 · 校园咖啡店{% endblock %}
+{% block content %}
+<h1>新建订单</h1>
+
+<form id="order-form" class="card" novalidate>
+  <label>门店<select id="store-select"></select></label>
+
+  <div id="item-rows" class="item-rows"></div>
+  <div class="actions"><button type="button" id="add-row">加一行</button></div>
+
+  <label>取餐时间<input id="pickup-time" type="datetime-local"></label>
+  <label>备注<input id="remark" maxlength="200"></label>
+
+  <div class="actions"><button type="submit">提交订单</button></div>
+  <p id="order-error" class="error" hidden></p>
+</form>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/order_new.js') }}"></script>
+{% endblock %}

@@ -2,3 +2,14 @@
 .vs/
 .gitignore
 关系表说明.pdf
+
+# 项目规范
+AGENTS.md
+
+# Python / Flask 运行时
+__pycache__/
+*.pyc
+.env
+logs/
+.pytest_cache/
+pytest-cache-files-*/

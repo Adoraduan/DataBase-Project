@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}订单详情 · 校园咖啡店{% endblock %}
+{% block content %}
+<h1>订单详情</h1>
+
+<section class="card" id="order-summary"></section>
+<div class="actions" id="order-actions"></div>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>商品</th><th>规格</th><th>单价</th><th>数量</th><th>小计</th>
+      {% if user.role == "customer" %}<th>操作</th>{% endif %}
+    </tr>
+  </thead>
+  <tbody id="item-rows"></tbody>
+</table>
+
+{% if user.role == "customer" %}
+<section class="card" id="item-add" hidden>
+  <h2>加一份</h2>
+  <div class="form-grid">
+    <label>规格<select id="add-sku"></select></label>
+    <label>数量<input id="add-qty" type="number" min="1" max="99" value="1"></label>
+    <div class="actions"><button type="button" id="add-item">加入</button></div>
+  </div>
+</section>
+{% endif %}
+
+<p id="detail-error" class="error" hidden></p>
+{% endblock %}
+{% block scripts %}
+<script>window.PAGE = {orderId: {{ order_id|tojson }}, role: {{ user.role|tojson }}};</script>
+<script src="{{ url_for('static', filename='js/order_detail.js') }}"></script>
+{% endblock %}

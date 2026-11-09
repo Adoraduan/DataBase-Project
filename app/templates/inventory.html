@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}库存 · 校园咖啡店{% endblock %}
+{% block content %}
+<h1>库存</h1>
+
+<div class="card">
+  <label>门店
+    <select id="store-filter">
+      <option value="">全部门店</option>
+    </select>
+  </label>
+</div>
+
+<table class="table">
+  <thead>
+    <tr><th>门店</th><th>商品</th><th>规格</th><th>单价</th><th>数量</th><th>操作</th></tr>
+  </thead>
+  <tbody id="inventory-rows"></tbody>
+</table>
+<p id="inventory-error" class="error" hidden></p>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/inventory.js') }}"></script>
+{% endblock %}

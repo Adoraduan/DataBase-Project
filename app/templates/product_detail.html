@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}商品详情 · 校园咖啡店{% endblock %}
+{% block content %}
+<h1>商品详情</h1>
+
+<section class="card">
+  <div id="product-view"></div>
+  {% if user.role == "manager" %}
+  <form id="product-edit-form" class="form-grid" hidden>
+    <label>名称<input id="edit-name" maxlength="100" required></label>
+    <label>分类<select id="edit-category"></select></label>
+    <label>描述<input id="edit-desc" maxlength="500"></label>
+    <label>状态
+      <select id="edit-status">
+        <option value="上架">上架</option>
+        <option value="下架">下架</option>
+      </select>
+    </label>
+    <div class="actions">
+      <button type="submit">保存</button>
+      <button type="button" id="delete-product" class="danger-btn">删除商品</button>
+    </div>
+  </form>
+  {% endif %}
+</section>
+
+<section class="card">
+  <h2>规格</h2>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>规格</th><th>价格</th><th>状态</th>
+        {% if user.role == "manager" %}<th>操作</th>{% endif %}
+      </tr>
+    </thead>
+    <tbody id="sku-rows"></tbody>
+  </table>
+
+  {% if user.role == "manager" %}
+  <form id="sku-create-form" class="form-grid">
+    <label>规格名<input id="sku-name" maxlength="50" required></label>
+    <label>价格<input id="sku-price" type="number" step="0.01" min="0" required></label>
+    <label>状态
+      <select id="sku-status">
+        <option value="上架">上架</option>
+        <option value="下架">下架</option>
+      </select>
+    </label>
+    <div class="actions"><button type="submit">新增规格</button></div>
+  </form>
+  {% endif %}
+</section>
+
+<p id="detail-error" class="error" hidden></p>
+{% endblock %}
+{% block scripts %}
+<script>window.PAGE = {productId: {{ product_id|tojson }}, role: {{ user.role|tojson }}};</script>
+<script src="{{ url_for('static', filename='js/product_detail.js') }}"></script>
+{% endblock %}

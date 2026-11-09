@@ -24,7 +24,7 @@ GO
 
 /* ============================================================
    Part 0  把数据恢复到 02 建立的基线（保证本文件可重复执行）
-   本文件会新增 user_id = 5、order_id = 5 的一组数据（账号、订单、明细、
+   本文件会新增 user_id = 6、order_id = 5 的一组数据（账号、订单、明细、
    支付、评价、领券、积分流水），并在 Part 2 修改若干「当前值」。
    开头先把改动逐个还原，使本文件可反复执行、每次结果一致：
      ① 按外键逆序删掉新增的演示数据；
@@ -32,13 +32,13 @@ GO
         （库存是「减 2」这类相对运算，不还原就会一次比一次少）。
    首次执行时，这些语句都不改动任何实际数据。
    ============================================================ */
-DELETE FROM dbo.point_transactions WHERE user_id  = 5;
-DELETE FROM dbo.reviews            WHERE user_id  = 5;
-DELETE FROM dbo.coupon_claims      WHERE user_id  = 5;
+DELETE FROM dbo.point_transactions WHERE user_id  = 6;
+DELETE FROM dbo.reviews            WHERE user_id  = 6;
+DELETE FROM dbo.coupon_claims      WHERE user_id  = 6;
 DELETE FROM dbo.payments           WHERE order_id = 5;
 DELETE FROM dbo.order_items        WHERE order_id = 5;
 DELETE FROM dbo.orders             WHERE order_id = 5;
-DELETE FROM dbo.users              WHERE user_id  = 5;
+DELETE FROM dbo.users              WHERE user_id  = 6;
 
 UPDATE dbo.skus      SET price    = 15.00   WHERE sku_id     = 1;
 UPDATE dbo.inventory SET quantity = 50      WHERE sku_id     = 1 AND store_id = 1;
@@ -50,20 +50,20 @@ GO
    场景：新会员 dave 注册并下了一单（拿铁中杯 × 2）
    ============================================================ */
 
--- ① 新增会员账号（预期：插入 1 行，user_id = 5）
+-- ① 新增会员账号（预期：插入 1 行，user_id = 6）
 SET IDENTITY_INSERT dbo.users ON;
 INSERT INTO dbo.users (user_id, username, phone, email, password_hash, status, points_balance, created_at)
-VALUES (5, N'dave', '13800000005', 'dave@stu.edu.cn', N'hash_dave', N'正常', 0, '2026-10-06 14:00:00');
+VALUES (6, N'dave', '13800000006', 'dave@stu.edu.cn', N'hash_dave', N'正常', 0, '2026-10-06 14:00:00');
 SET IDENTITY_INSERT dbo.users OFF;
 GO
 
-SELECT user_id, username, phone, status, points_balance FROM dbo.users WHERE user_id = 5;
+SELECT user_id, username, phone, status, points_balance FROM dbo.users WHERE user_id = 6;
 GO
 
 -- ② 新增订单（预期：插入 1 行，order_id = 5，状态「待支付」）
 SET IDENTITY_INSERT dbo.orders ON;
 INSERT INTO dbo.orders (order_id, order_no, user_id, store_id, pickup_time, remark, total_amount, status, created_at)
-VALUES (5, N'202610060003', 5, 1, '2026-10-06 15:00:00', N'常温', 30.00, N'待支付', '2026-10-06 14:05:00');
+VALUES (5, N'202610060003', 6, 1, '2026-10-06 15:00:00', N'常温', 30.00, N'待支付', '2026-10-06 14:05:00');
 SET IDENTITY_INSERT dbo.orders OFF;
 GO
 
@@ -94,7 +94,7 @@ GO
 -- ⑤ 新增评价（预期：插入 1 行。reviews 对 order_id 有唯一约束，一单一评）
 SET IDENTITY_INSERT dbo.reviews ON;
 INSERT INTO dbo.reviews (review_id, order_id, user_id, rating, content, created_at)
-VALUES (3, 5, 5, 5, N'出餐快，温度刚好', '2026-10-06 14:30:00');
+VALUES (3, 5, 6, 5, N'出餐快，温度刚好', '2026-10-06 14:30:00');
 SET IDENTITY_INSERT dbo.reviews OFF;
 GO
 
@@ -104,7 +104,7 @@ GO
 -- ⑥ 新增领券记录（预期：插入 1 行。coupon_claims 对 (coupon_id, user_id) 有唯一约束）
 SET IDENTITY_INSERT dbo.coupon_claims ON;
 INSERT INTO dbo.coupon_claims (claim_id, coupon_id, user_id, status, claimed_at)
-VALUES (3, 1, 5, N'未使用', '2026-10-06 14:02:00');
+VALUES (3, 1, 6, N'未使用', '2026-10-06 14:02:00');
 SET IDENTITY_INSERT dbo.coupon_claims OFF;
 GO
 
@@ -147,10 +147,10 @@ GO
 
 -- ⑤ 发放积分：dave 消费 30 元得 30 分（预期：余额 0 → 30）
 --    注意：改余额的同时必须写一笔积分流水，否则「余额」与「流水末笔」对不上账
-UPDATE dbo.users SET points_balance = points_balance + 30 WHERE user_id = 5;
+UPDATE dbo.users SET points_balance = points_balance + 30 WHERE user_id = 6;
 SET IDENTITY_INSERT dbo.point_transactions ON;
 INSERT INTO dbo.point_transactions (transaction_id, user_id, change_type, points_change, balance_after, order_id, created_at)
-VALUES (5, 5, N'消费获得', 30, 30, 5, '2026-10-06 14:06:00');
+VALUES (5, 6, N'消费获得', 30, 30, 5, '2026-10-06 14:06:00');
 SET IDENTITY_INSERT dbo.point_transactions OFF;
 GO
 
@@ -158,7 +158,7 @@ SELECT u.user_id, u.username, u.points_balance AS [账号余额],
        t.points_change, t.balance_after AS [流水末笔余额]
 FROM dbo.users u
 JOIN dbo.point_transactions t ON u.user_id = t.user_id
-WHERE u.user_id = 5;
+WHERE u.user_id = 6;
 GO
 
 /* ============================================================
@@ -180,8 +180,8 @@ SELECT payment_id, order_id FROM dbo.payments WHERE order_id = 5;         -- 预
 GO
 
 -- ③ 删除 dave 的积分流水（其 order_id 指向订单 5，故先于订单删除）
-DELETE FROM dbo.point_transactions WHERE user_id = 5;
-SELECT transaction_id, order_id FROM dbo.point_transactions WHERE user_id = 5;  -- 预期：0 行
+DELETE FROM dbo.point_transactions WHERE user_id = 6;
+SELECT transaction_id, order_id FROM dbo.point_transactions WHERE user_id = 6;  -- 预期：0 行
 GO
 
 -- ④ 删除演示评价（引用订单 5 与 dave，故先于两者删除）
@@ -204,8 +204,8 @@ SELECT order_id, order_no FROM dbo.orders WHERE order_id = 5;             -- 预
 GO
 
 -- ⑦ 删除演示用户 dave
-DELETE FROM dbo.users WHERE user_id = 5;
-SELECT user_id, username FROM dbo.users WHERE user_id = 5;                -- 预期：0 行
+DELETE FROM dbo.users WHERE user_id = 6;
+SELECT user_id, username FROM dbo.users WHERE user_id = 6;                -- 预期：0 行
 GO
 
 /* ============================================================

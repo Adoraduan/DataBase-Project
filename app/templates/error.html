@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}出错了 · 校园咖啡店{% endblock %}
+{% block content %}
+<section class="card">
+  <h1>{{ error.http_status }}</h1>
+  <p>{{ error.message }}</p>
+  <p class="muted">请求标识：<code>{{ request_id or "" }}</code></p>
+  <p><a href="{{ url_for('pages.dashboard') }}">回控制台</a></p>
+</section>
+{% endblock %}

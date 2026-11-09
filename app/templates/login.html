@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}登录 · 校园咖啡店{% endblock %}
+{% block content %}
+<section class="login-card">
+  <h1>登录</h1>
+  <p class="muted">演示账号：alice（顾客）、bob（店员）、carol（店长）</p>
+  <form id="login-form" novalidate>
+    <label>用户名
+      <input id="username" name="username" autocomplete="username" required>
+    </label>
+    <label>密码
+      <input id="password" name="password" type="password" autocomplete="current-password" required>
+    </label>
+    <button type="submit">登录</button>
+    <p id="login-error" class="error" hidden></p>
+  </form>
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/login.js') }}"></script>
+{% endblock %}

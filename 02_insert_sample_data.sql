@@ -82,12 +82,14 @@ INSERT INTO dbo.role_permissions (role_id, permission_id) VALUES
 GO
 
 -- 用户（会员 = 已注册顾客；points_balance 与积分流水末笔余额一致）
+-- password_hash 对应演示密码 Campus@2026，Web 应用登录时校验
 SET IDENTITY_INSERT dbo.users ON;
 INSERT INTO dbo.users (user_id, username, phone, email, password_hash, status, points_balance, created_at) VALUES
-(1, N'alice', '13800000001', 'alice@stu.edu.cn', N'hash_alice', N'正常', 120, '2026-09-01 09:00:00'),
-(2, N'bob',   '13800000002', 'bob@stu.edu.cn',   N'hash_bob',   N'正常',  17, '2026-09-01 09:00:00'),
-(3, N'carol', '13800000003', 'carol@stu.edu.cn', N'hash_carol', N'正常',   0, '2026-09-01 09:00:00'),
-(4, N'admin', '13800000004', 'admin@coffee.cn',  N'hash_admin', N'正常',   0, '2026-09-01 09:00:00');
+(1, N'alice',     '13800000001', 'alice@stu.edu.cn',    N'pbkdf2:sha256:600000$fLp4hNKDpu3g1idy$d2abe2a140eecf0bb67521d4333a71b0678a7dc9e5313e18532fd08799cbed9f', N'正常', 120, '2026-09-01 09:00:00'),
+(2, N'bob',       '13800000002', 'bob@stu.edu.cn',      N'pbkdf2:sha256:600000$n75BBbNaiXmy3HIg$865af36f3608085599307e607687fa14e77f3ecdee2e6eb4396146779634b76a', N'正常',  17, '2026-09-01 09:00:00'),
+(3, N'carol',     '13800000003', 'carol@stu.edu.cn',    N'pbkdf2:sha256:600000$MLybTx17kx94qQLr$c488daf70025c9dabb5afb48dc5348c9ef8bdf22050a5af9242d9ff7a707380f', N'正常',   0, '2026-09-01 09:00:00'),
+(4, N'admin',     '13800000004', 'admin@coffee.cn',     N'pbkdf2:sha256:600000$IbPoqfKQPsgSx0Ld$7bcd579f0e823639b23b6256c8e7718daf7e1f9845a2a62d64a52e7a6ce575fe', N'正常',   0, '2026-09-01 09:00:00'),
+(5, N'wangqiang', '13800000005', 'wangqiang@stu.edu.cn', N'pbkdf2:sha256:600000$ROFMyjqNyCbVomIQ$a83c69fd3b8e92a83e28b0dfda51da4ba7b4da51b83a856636386176106650fd', N'正常',   0, '2026-09-20 09:00:00');
 SET IDENTITY_INSERT dbo.users OFF;
 GO
 
@@ -96,7 +98,8 @@ INSERT INTO dbo.user_roles (user_id, role_id) VALUES
 (1, 1),   -- alice：顾客
 (2, 2),   -- bob：店员
 (3, 3),   -- carol：店长
-(4, 4);   -- admin：系统管理员
+(4, 4),   -- admin：系统管理员
+(5, 2);   -- wangqiang：店员
 GO
 
 -- ---------- 组织（门店 / 员工） ----------
@@ -109,12 +112,12 @@ INSERT INTO dbo.stores (store_id, store_name, address, phone, status) VALUES
 SET IDENTITY_INSERT dbo.stores OFF;
 GO
 
--- 员工（user_id 可空：没发工号账号的店员也能建档）
+-- 员工（user_id 非空，一名员工对应一个登录账号）
 SET IDENTITY_INSERT dbo.employees ON;
 INSERT INTO dbo.employees (employee_id, user_id, store_id, name, position, hire_date) VALUES
-(1, 3,    1, N'张伟', N'店长', '2025-09-01'),
-(2, 2,    1, N'李娜', N'店员', '2026-03-01'),
-(3, NULL, 2, N'王强', N'店员', '2026-06-01');
+(1, 3, 1, N'张伟', N'店长', '2025-09-01'),
+(2, 2, 1, N'李娜', N'店员', '2026-03-01'),
+(3, 5, 2, N'王强', N'店员', '2026-06-01');
 SET IDENTITY_INSERT dbo.employees OFF;
 GO
 
@@ -248,7 +251,7 @@ GO
    ============================================================ */
 
 -- ① 各表行数（预期见注释）
-SELECT N'users' AS tbl, COUNT(*) AS cnt FROM dbo.users            -- 4
+SELECT N'users' AS tbl, COUNT(*) AS cnt FROM dbo.users            -- 5
 UNION ALL SELECT N'roles',            COUNT(*) FROM dbo.roles            -- 4
 UNION ALL SELECT N'stores',           COUNT(*) FROM dbo.stores           -- 2
 UNION ALL SELECT N'employees',        COUNT(*) FROM dbo.employees        -- 3

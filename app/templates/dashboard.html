@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}控制台 · 校园咖啡店{% endblock %}
+{% block content %}
+<h1>控制台</h1>
+<p class="muted">当前账号：{{ user.username }}（{{ role_label(user.role) }}）</p>
+
+<section class="card">
+  <h2>快捷入口</h2>
+  <div class="links">
+    <a class="button" href="{{ url_for('pages.products') }}">商品</a>
+    {% if user.role in ("staff", "manager") %}
+    <a class="button" href="{{ url_for('pages.inventory') }}">库存</a>
+    {% endif %}
+    <a class="button" href="{{ url_for('pages.orders') }}">订单</a>
+    {% if user.role == "customer" %}
+    <a class="button" href="{{ url_for('pages.order_new') }}">新建订单</a>
+    {% endif %}
+  </div>
+</section>
+
+<section class="card">
+  <h2>本角色能做的事</h2>
+  {% if user.role == "customer" %}
+  <ul>
+    <li>浏览商品与规格</li>
+    <li>下单、查看自己的订单与明细</li>
+    <li>待支付订单的明细增删改、支付与取消</li>
+  </ul>
+  {% elif user.role == "staff" %}
+  <ul>
+    <li>查看全部订单与明细</li>
+    <li>推进订单状态：已支付 → 制作中 → 待取餐 → 已完成</li>
+    <li>查询与调整库存</li>
+  </ul>
+  {% elif user.role == "manager" %}
+  <ul>
+    <li>商品与规格维护</li>
+    <li>库存调整</li>
+    <li>订单查看</li>
+  </ul>
+  {% endif %}
+</section>
+{% endblock %}
