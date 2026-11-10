@@ -13,3 +13,7 @@ __pycache__/
 logs/
 .pytest_cache/
 pytest-cache-files-*/
+
+# AI 工具与提交包
+.deepeval/
+提交包_*/

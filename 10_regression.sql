@@ -51,7 +51,7 @@ GO
    Part 2  关系映射
    ============================================================ */
 
--- 2.1 用户 → 角色 → 权限 链路（预期 7 行）
+-- 2.1 用户 → 角色 → 权限 链路（预期 5 行）
 SELECT u.username, r.role_name, p.permission_name
 FROM dbo.users            u
 JOIN dbo.user_roles       ur ON u.user_id  = ur.user_id
