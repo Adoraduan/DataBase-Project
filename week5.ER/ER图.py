@@ -30,7 +30,7 @@ plt.rcParams["axes.unicode_minus"] = False
 # (名称, [属性行...])  属性行保留 PK / FK / UK 注释
 ENTITIES = [
     ("users", ["user_id : int  PK", "username : varchar  UK", "phone : varchar  UK",
-               "email : varchar  UK", "points_balance : int", "status : varchar"]),
+               "email : varchar", "points_balance : int", "status : varchar"]),
     ("roles", ["role_id : int  PK", "role_name : varchar  UK"]),
     ("permissions", ["permission_id : int  PK", "permission_name : varchar  UK"]),
     ("user_roles", ["user_id : int  PK  FK→users", "role_id : int  PK  FK→roles"]),
@@ -38,7 +38,7 @@ ENTITIES = [
     ("stores", ["store_id : int  PK", "store_name : varchar  UK", "status : varchar"]),
     ("employees", ["employee_id : int  PK", "user_id : int  FK  UK", "store_id : int  FK", "position : varchar"]),
     ("categories", ["category_id : int  PK", "parent_id : int  FK", "category_name : varchar  UK"]),
-    ("products", ["product_id : int  PK", "category_id : int  FK", "product_name : varchar", "status : varchar"]),
+    ("products", ["product_id : int  PK", "category_id : int  FK", "product_name : varchar  UK", "status : varchar"]),
     ("skus", ["sku_id : int  PK", "product_id : int  FK", "sku_name : varchar", "price : decimal", "status : varchar"]),
     ("inventory", ["sku_id : int  PK  FK→skus", "store_id : int  PK  FK→stores", "quantity : int"]),
     ("orders", ["order_id : int  PK", "order_no : varchar  UK", "user_id : int  FK", "store_id : int  FK",

@@ -28,7 +28,7 @@
 | --- | --- | --- |
 | users ↔ roles（经 user_roles） | M : N | 关联实体 |
 | roles ↔ permissions（经 role_permissions） | M : N | 关联实体 |
-| users ↔ employees | 0..1 : 0..1 | user_id 唯一可空 |
+| users ↔ employees | 0..1 : 1 | user_id 唯一非空（第六周收紧） |
 | stores → employees | 1 : N | |
 | categories → categories | 0..1 : N | 自引用 parent_id |
 | categories → products → skus | 1 : N : N | |

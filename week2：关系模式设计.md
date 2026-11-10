@@ -54,7 +54,7 @@
 | user_id | INT | 主码 | 自增 |
 | username | NVARCHAR(50) | 候选码，非空唯一 | 登录名 |
 | phone | VARCHAR(11) | 候选码，唯一非空 | 手机号 |
-| email | VARCHAR(100) | 候选码，唯一可空 | 邮箱 |
+| email | VARCHAR(100) | 唯一可空 | 邮箱 |
 | password_hash | NVARCHAR(128) | 非空 | 密码哈希（不存明文） |
 | status | NVARCHAR(20) | 非空，默认'正常' | 正常 / 停用 |
 | points_balance | INT | 非空，默认 0 | 会员积分余额 |
@@ -307,13 +307,14 @@
 | payment_no | NVARCHAR(32) | 候选码，唯一非空 | 支付单号 |
 | order_id | INT | 非空，外码→orders | 订单 |
 | channel | NVARCHAR(20) | 非空 | 微信/支付宝/校园卡 |
-| channel_trade_no | NVARCHAR(64) | 候选码，唯一可空 | 渠道交易号 |
+| channel_trade_no | NVARCHAR(64) | 唯一可空 | 渠道交易号 |
 | amount | DECIMAL(10,2) | 非空 | 金额 |
 | status | NVARCHAR(20) | 非空 | 待支付/成功/失败/已退款 |
 | paid_at | DATETIME | 可空 | 支付时间 |
 
-- **主码**：`payment_id`　**候选码**：`payment_no`、`channel_trade_no`　**外码**：`order_id→orders`
+- **主码**：`payment_id`　**候选码**：`payment_no`　**外码**：`order_id→orders`
 - **范式等级**：4NF
+- **问题**：`channel_trade_no` 因可空属性不应作为候选码（同 `users.email`），仅保留唯一可空约束。
 
 ```
 样例元组：

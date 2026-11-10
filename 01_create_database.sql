@@ -140,8 +140,7 @@ CREATE TABLE dbo.employees (
 GO
 
 CREATE UNIQUE INDEX UX_employees_user_id
-ON dbo.employees(user_id)
-WHERE user_id IS NOT NULL;
+ON dbo.employees(user_id);
 GO
 
 /* ============================================================
@@ -173,6 +172,7 @@ CREATE TABLE dbo.products (
     created_at   DATETIME          NOT NULL CONSTRAINT DF_products_created_at DEFAULT GETDATE(),
 
     CONSTRAINT PK_products PRIMARY KEY (product_id),
+    CONSTRAINT UQ_products_product_name UNIQUE (product_name),
     CONSTRAINT FK_products_categories
         FOREIGN KEY (category_id) REFERENCES dbo.categories(category_id),
     CONSTRAINT CK_products_status CHECK (status IN (N'上架', N'下架'))
