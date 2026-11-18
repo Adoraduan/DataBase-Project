@@ -10,9 +10,11 @@
        因此本文件可反复执行（幂等），是 query/view 等脚本的可信基线。
      - 用显式主码 + IDENTITY_INSERT，保证每次重建后主码完全一致。
 
-   执行顺序：01_create_database.sql → 本文件 → 04_query.sql → 05_view.sql
-             → 06_constraint.sql → 07_role.sql
-             （03_crud.sql 是增删改演示，跑完它之后重跑本文件即可回到基线）
+   执行顺序：01_create_database.sql → 12_week10_12_schema.sql → 本文件
+             → 04_query.sql → 05_view.sql → 06_constraint.sql → 07_role.sql
+             （03_crud.sql 是增删改演示，跑完它之后重跑本文件即可回到基线；
+               第 10—12 周脚本 13_procedure/14_function/15_trigger/16_window_query/
+               17_recursive_query/18_order_transaction/19_restock_transaction 均跑在本文件基线上）
 
    注意（AI 使用边界）：本脚本由 AI 生成候选 SQL，必须由你在 SQL Server
              中亲自执行并核对结果，不能以 AI 结果替代人工测试。
@@ -32,6 +34,11 @@ DELETE FROM dbo.payments;
 DELETE FROM dbo.pickup_codes;
 DELETE FROM dbo.order_items;
 DELETE FROM dbo.inventory;
+-- 第 10—12 周新增表（若存在）需先于其引用的 skus/stores/employees 删除
+IF OBJECT_ID(N'dbo.restock_items', N'U') IS NOT NULL          DELETE FROM dbo.restock_items;
+IF OBJECT_ID(N'dbo.restock_orders', N'U') IS NOT NULL         DELETE FROM dbo.restock_orders;
+IF OBJECT_ID(N'dbo.inventory_adjustments', N'U') IS NOT NULL  DELETE FROM dbo.inventory_adjustments;
+IF OBJECT_ID(N'dbo.inventory_audit', N'U') IS NOT NULL        DELETE FROM dbo.inventory_audit;
 DELETE FROM dbo.orders;
 DELETE FROM dbo.skus;
 DELETE FROM dbo.products;
